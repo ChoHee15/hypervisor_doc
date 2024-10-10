@@ -32,9 +32,8 @@ task_loop -> vm.run_vcpu() -> vcpu.run() -> _run_guest -> timer irq -> self.vmex
 
 
 >```rust
->//  vcpu是否能提供某种统一接口来保证各种情况下中断的发生？
 >callback {
->	self.assert_irq(IRQ_TIMER); // vcpu assert irq
+>  // timer 到期后的处理，只需考虑 case 1 和 case 2 的处理
 >}
 >```
 
@@ -58,24 +57,21 @@ timer到期时，vcpu正在运行，和timer_list在同一核。
 ## case3
 
 timer到期时，vcpu正在运行，和timer_list在不同核。
-
+>当vcpu在hart0上运行时设置了定时器，然后vcpu被调度到hart1上执行，此时hart0上的定时器到期，该如何通知hart1上正在运行的vcpu中断到来并退出虚拟机？
+>
+>1. 完全不管，hart0处理时钟事件时，若vcpu不在自己这，直接修改 vcpu。当vcpu在hart1上退出一次虚拟机后，下次执行自然会注入中断。但是这样会使得中断不够及时。
+>2. 执行回调时检查vcpu是否在当前核心上？hart0处理时钟事件时发现vcpu不在自己这后，不做处理，也不额外采取行动通知hart1。等hart1处理时钟事件时再让hart1执行回调。
+>3. hart0处理时钟事件时发现vcpu不在自己这后，自己不做处理，查找得知vcpu在hart1上后，向hart1发送ipi，并将 callback 作为参数附带过去，hart1收到 ipi 后并执行 callback（需要在软件中断里增加复杂逻辑，但会让中断及时一些）
+>4. 每个hart都有自己的timer_list，当vcpu迁移时，连带时钟事件一起被迁移到新的timer_list里，增加调度的开销。
+>5. ……
 
 
 ## case4
 
-arceos时钟中断。
+arceos时钟中断。（调度）
+
 
 TODO
-
-
-
-
-
-
-
-
-
-
 
 # tmp
 
@@ -95,13 +91,7 @@ TODO
 
 单/多vcpu在多个物理核上调度执行。
 
->当vcpu在hart0上运行时设置了定时器，然后vcpu被调度到hart1上执行，此时hart0上的定时器到期，该如何通知hart1上正在运行的vcpu中断到来并退出虚拟机？
->
->1. 完全不管，hart0处理时钟事件时，若vcpu不在自己这照样``vcpu.assert_irq()给vcpu标记``。当vcpu在hart1上退出一次虚拟机后，下次执行自然会注入中断。但是这样会使得中断不够及时。
->2. 执行回调时检查vcpu是否在当前核心上？hart0处理时钟事件时发现vcpu不在自己这后，不做处理，也不额外采取行动通知hart1。等hart1处理时钟事件时再让hart1执行回调。
->3. hart0处理时钟事件时发现vcpu不在自己这后，自己不做处理，查找得知vcpu在hart1上后，向hart1发送ipi，hart1收到后检查timer_list并执行回调（需要在软件中断里增加复杂逻辑，但会让中断及时一些）
->4. 每个hart都有自己的timer_list，当vcpu迁移时，连带时钟事件一起被迁移到新的timer_list里。
->5. ……
+
 
 
 
