@@ -66,20 +66,9 @@ loop {
         Ok(exit_reason) => match exit_reason {
             ...
             AxVCpuExitReason::ExternalInterrupt { vector } => {
-                // 查询物理plic，获取发送中断的设备信息
+                // 查询中断控制器，获取发送中断的设备信息，以plic为例
                 let irq_no = PLIC.claim();
-                // handle_irq(irq_no); ?
-                match irq_no {
-                    serial => {
-          						// 读取物理串口
-          						let ch = uart_8250_read();
-          						// 将字符发送给模拟串口设备
-          						let vserial_dev = CONSOLE.current_bind();
-          						vserial_dev.send(ch);
-        					  }
-        					  ...
-				        }
-				
+                handle_irq(irq_no)
                 // complete
                 PLIC.complete(irq_no);
             }
@@ -92,15 +81,18 @@ loop {
     }
 }
 
-//fn handle_irq(irq_no: u32) {
-//	match irq_no {
-//		serial => {
-//			let ch = serial_read();
-//			
-//		}
-//		...
-//	}
-//}
+fn handle_irq(irq_no: u32) {
+	match irq_no {
+		serial => {
+			// 读取物理串口
+			let ch = uart_8250_read();
+			// 将字符发送给模拟串口设备
+			let vserial_dev = CONSOLE.current_bind();
+			vserial_dev.send(ch);
+		}
+		...
+	}
+}
 ```
 
 
