@@ -223,9 +223,9 @@ impl WriteRead<u32> for myic {
 fn main() {
     let ic = myic;
 
-    ic.send_irq(0, true); // myic send irq
+    ic.send_irq(1, true); // myic send irq
     
-    ic.write(123, 5 as u32); // myic write u32
+    ic.write(0x100, 5 as u32); // myic write u32
     ic.write::<u8>(0x100, 4); // myic write u8
 
     ic.read::<u8>(0x100); // myic read u8
