@@ -97,7 +97,7 @@ trait InterruptController {
 
 ## 读写实现：数据长度作为参数
 
-数据长度作为参数，使用最大变量（u64）作为数据容器，在不同分支中做截断/扩展。
+数据长度作为参数，使用最大变量（如u64）作为数据容器，在不同分支中做截断/扩展。
 
 ```rust
 // 读取，第二种实现
@@ -113,7 +113,7 @@ fn read(addr: usize, len: usize) -> u64 {
         }
         32 => {...}
         ...
-  }
+    }
 }
 
 // 写入，第二种实现
@@ -121,7 +121,7 @@ fn write(addr: usize, val: u64, len: usize) -> u64 {
     match len {
       8 => {
         let data: u8 = val as u8;
-			  ...
+	...
       }
       16 => {
         let data: u16 = val as u16;
@@ -129,7 +129,7 @@ fn write(addr: usize, val: u64, len: usize) -> u64 {
       }
       32 => {...}
       ...
-  }
+    }
 }
 ```
 
@@ -141,9 +141,9 @@ fn write(addr: usize, val: u64, len: usize) -> u64 {
 
 ```rust
 trait InterruptController {
-	fn send_irq(source_id: u32, level: bool);
+    fn send_irq(source_id: u32, level: bool);
 
-	// 泛型的写接口
+    // 泛型的写接口
     fn write<T>(&self, addr: usize, val: T)
     where
         Self: WriteRead<T>,
@@ -221,7 +221,7 @@ impl WriteRead<u32> for myic {
 
 // main.rs
 fn main(){
-    let ic = Myic;
+    let ic = myic;
 
     ic.send_irq(0, true); // myic send irq
     
@@ -233,6 +233,3 @@ fn main(){
 }
 
 ```
-
-
-
