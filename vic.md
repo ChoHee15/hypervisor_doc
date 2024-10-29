@@ -1,7 +1,7 @@
-# 虚拟中断控制器
+# 虚拟中断控制器 接口与定义
 # structure
 
-由于结构上的差异，各个架构的中断控制器可能不会共用数据结构，而是编写不同的struct，但实现同一个trait。
+由于结构上的差异，各个架构的中断控制器可能不会共用数据结构，而是编写不同的struct，实现同一个trait。
 
 如果需要的话，中断控制器连接中断源和目标，以下的结构应该是相似的：
 
@@ -46,7 +46,7 @@ struct Target {
 
 ## basic
 
-基础接口。其中关于数据类型，发送中断信号的接口，是否定义claim/complete，以及不同数据长度的读写，有多种实现方式方案，需要做具体讨论。
+基础接口。其中关于数据类型，发送中断信号的接口，是否定义claim/complete，以及不同数据长度的读写，有多种方案，需要做具体讨论。
 
 ```rust
 trait InterruptController {
@@ -82,7 +82,7 @@ trait InterruptController {
 ```
 
 >关于数据类型：
->上文假设中断源ID为u32类型，claim寄存器大小为u32。这类结构的大小，在不同控制器中可能是不一致的。
+>上文假设中断源ID为u32类型，claim寄存器为u32类型。这类结构的大小，在不同控制器中可能是不一致的。
 
 >关于发送中断信号的接口：
 >当前的设计，即``fn send_irq(source_id: u32, level: bool);``，其实假设的是，设备知道自己对应于哪个中断源ID；模拟设备使用此方法时，会直接附上自己的ID。因此，需要确定这一假设是否成立。
@@ -220,7 +220,7 @@ impl WriteRead<u32> for myic {
 }
 
 // main.rs
-fn main(){
+fn main() {
     let ic = myic;
 
     ic.send_irq(0, true); // myic send irq
