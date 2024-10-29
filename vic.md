@@ -11,7 +11,7 @@ struct Source {
     // 中断源的优先级
     priority: u32,
     // 中断源的等待处理标识
-    pending:bool,
+    pending: bool,
 }
 
 // 目标（核心）相关
@@ -92,7 +92,7 @@ trait InterruptController {
 >关于是否定义claim/complete：
 >pub trait的所有方法都是对外可见的，然而claim/complete作为可能共有的行为，在一些实现中会蕴含于读/写行为（如riscv PLIC）。因此可能不需要被定义。
 
->关于不同数据长度的读写，见下文
+>关于不同数据长度的读写，见下文的其他实现方式
 
 
 ## 读写实现：数据长度作为参数
