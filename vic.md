@@ -16,6 +16,11 @@ struct Source {
 
 // 目标（核心）相关
 struct Target {
+    // 连接的vcpu
+    vcpu_id: u32,
+    or
+    vcpu: Arc<Vcpu>,
+
     // 目标门限，当中断源优先级超过此门限时才有效
     threshold: u32,
     // 此目标对于每个中断源的使能
